@@ -9,56 +9,45 @@ import '@stream-io/stream-chat-css/dist/css/index.css';
 import Auth from './components/Auth';
 import MessagingContainer from './components/MessagingContainer';
 import Video from './components/Video';
-
-const filters = { type: 'messaging' };
-const options = { state: true, presence: true, limit: 10 };
-const sort = { last_message_at: -1 };
+import { useCookies } from 'react-cookie';
 
 const client = StreamChat.getInstance('65ukcf2g2k62');
 
 const App = () => {
-  const [clientReady, setClientReady] = useState(false);
+  const [cookies, setCookie, removeCookie] = useCookies(['user'])
   const [channel, setChannel] = useState(null);
 
-  const authToken = false;
+  const authToken = cookies.AuthToken;
 
-  useEffect(() => {
-    const setupClient = async () => {
-      try {
-        await client.connectUser(
-          {
-            id: 'dave-matthews',
-            name: 'Dave Matthews',
-          },
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZGF2ZS1tYXR0aGV3cyJ9.ZNRqlbFydU8c7FEi95Zi3RFZ1ag0pW-JMtsz_c6vZcg',
-        );
-        const channel = await client.channel('gaming', 'gaming-demo', {
-          name: 'Gaming Demo',
-        })
-        setChannel(channel)
+  // useEffect(() => {
 
-        setClientReady(true);
-      } catch (err) {
-        console.log(err);
-      }
-    };
+  // }, []);
 
-    setupClient();
-  }, []);
-
-  if (!clientReady) return null;
-  const customStyle = {
-    '--primary-color': 'green',
-    '--md-font': '1.2rem',
-    '--xs-m': '1.2rem',
-    '--xs-p': '1.2rem',
+  const setupClient = async () => {
+    try {
+      await client.connectUser(
+        {
+          id: cookies.UserId,
+          name: cookies.Name,
+          hashedPassword: cookies.HashedPassword,
+        },
+        authToken
+      );
+      const channel = await client.channel('gaming', 'gaming-demo', {
+        name: 'Gaming Demo',
+      })
+      setChannel(channel)
+    } catch (err) {
+      console.log(err);
+    }
   };
+
+  if (authToken) setupClient();
 
   return (
     <>
       {!authToken && <Auth />}
-      {authToken && <Chat client={client} customStyles={customStyle}>
-        <ChannelList filters={filters} sort={sort} options={options} />
+      {authToken && <Chat client={client} darkMode={true}>
         <Channel channel={channel}>
           <Video />
           <MessagingContainer />
