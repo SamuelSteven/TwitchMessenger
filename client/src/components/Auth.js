@@ -13,19 +13,18 @@ const Auth = () => {
     console.log(username);
     console.log(password);
 
-    const handleSubmit = async () => {
-        console.log('Submitted!')
-        if (password != confirmPassword) {
+    const handleSubmit = async (endpoint) => {
+        console.log(endpoint)
+        if (!isLogin && password !== confirmPassword) {
             setError(true)
             return
         }
 
-        const response = await axios.post('http://localhost:8000/signup', {
+        const response = await axios.post(`http://localhost:8000/${endpoint}`, {
             username,
             password
         })
 
-        console.log(response);
         setCookie('Name', response.data.username);
         setCookie('HashedPassword', response.data.hashedPassword);
         setCookie('UserId', response.data.userId);
@@ -59,8 +58,8 @@ const Auth = () => {
                         placeholder="Confirm Password"
                         onChange={(e) => setConfirmPassword(e.target.value)}
                     />}
-                    {error && <p>Password doesn't macth!</p>}
-                    <button onClick={handleSubmit} className='standard-button'>
+                    {error && <p>Password does not macth!</p>}
+                    <button className='standard-button' onClick={() => handleSubmit(isLogin ? 'login' : 'signup')}>
                         Submit
                     </button>
                 </div>
