@@ -3,14 +3,12 @@ import { StreamChat } from 'stream-chat';
 import {
   Chat,
   Channel,
-  ChannelHeader,
   ChannelList,
-  MessageList,
-  MessageInput,
-  Thread,
-  Window,
 } from 'stream-chat-react';
 import '@stream-io/stream-chat-css/dist/css/index.css';
+import Auth from './components/Auth';
+import MessagingContainer from './components/MessagingContainer';
+import Video from './components/Video';
 
 const filters = { type: 'messaging' };
 const options = { state: true, presence: true, limit: 10 };
@@ -21,6 +19,8 @@ const client = StreamChat.getInstance('65ukcf2g2k62');
 const App = () => {
   const [clientReady, setClientReady] = useState(false);
   const [channel, setChannel] = useState(null);
+
+  const authToken = false;
 
   useEffect(() => {
     const setupClient = async () => {
@@ -55,17 +55,16 @@ const App = () => {
   };
 
   return (
-    <Chat client={client} customStyles={customStyle}>
-      <ChannelList filters={filters} sort={sort} options={options} />
-      <Channel channel={channel}>
-        <Window>
-          <ChannelHeader />
-          <MessageList />
-          <MessageInput />
-        </Window>
-        <Thread />
-      </Channel>
-    </Chat>
+    <>
+      {!authToken && <Auth />}
+      {authToken && <Chat client={client} customStyles={customStyle}>
+        <ChannelList filters={filters} sort={sort} options={options} />
+        <Channel channel={channel}>
+          <Video />
+          <MessagingContainer />
+        </Channel>
+      </Chat>}
+    </>
   );
 };
 
